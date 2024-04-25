@@ -8,6 +8,7 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
+
 echo "please enter DB password:"
 read -s mysql_root-password
 VALIDATE(){
@@ -32,6 +33,10 @@ VALIDATE $? "Disabling default nodejs"
 
 dnf module enable nodejs:20 -y &>>$LOGFILE
 VALIDATE $? "Enabling nodejs:20 version"
+
+mkdir /app
+VALIDATE $? "creting app directory"
+
 
 dnf install nodejs -y &>>$LOGFILE
 VALIDATE $? "Installing nodejs"
