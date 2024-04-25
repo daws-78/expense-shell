@@ -34,10 +34,6 @@ VALIDATE $? "Disabling default nodejs"
 dnf module enable nodejs:20 -y &>>$LOGFILE
 VALIDATE $? "Enabling nodejs:20 version"
 
-mkdir /app
-VALIDATE $? "creting app directory"
-
-
 dnf install nodejs -y &>>$LOGFILE
 VALIDATE $? "Installing nodejs"
 id expense  &>>$LOGFILE
@@ -49,3 +45,18 @@ then
 else
   echo "Expense user already created...$Y SKIPPING $N"
 fi
+
+mkdir -p /app
+VALIDATE $? "creting app directory"
+
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+VALIDATE $? " Downloading backend code"
+
+cd /app
+
+unzip /tmp/backend.zip
+
+VALIDATE $? "Extracted backend code"
+
+npm install
+VALIDATE $? "Installing nodejs dependencies"
