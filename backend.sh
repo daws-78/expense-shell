@@ -48,5 +48,37 @@ else
 fi
 
 mkdir /app &>>$LOGFILE
-VALIDATE $? "creting app directory" 
+VALIDATE $? "creating app directory" 
+
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOGFILE
+VALIDATE $? "Downloading backend code"
+
+cd /app
+unzip /tmp/backend.zip &>>$LOGFILE
+VALIDATE $? "Extracted backend code"
+
+npm install &>>$LOGFILE
+VALIDATE $? "Installing nodejs dependencies"
+
+cp /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
+VALIDATE $? "copied backend service"
+
+systemctl daemon-reload &>>$LOGFILE
+VALIDATE $? "Daemon reload"
+
+systemctl start backend &>>$LOGFILE
+VALIDATE $? "Starting backend"
+
+systemctl enable backend &>>$LOGFILE
+VALIDATE $? "Enabling backend"
+
+dnf install mysql -y &>>$LOGFILE
+VALIDATE $? "Installing MYSQL Client"
+
+mysql -h db.daws78s.tech -uroot -p${mysql_root_password} < /app/schema/backend.sql &>>$LOGFILE
+VALIDATE $? "Schema loading"
+
+systemctl restart backend &>>$LOGFILE
+VALIDATE $? "restarting Backend"
+
 
