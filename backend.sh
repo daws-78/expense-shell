@@ -18,13 +18,13 @@ VALIDATE(){
        exit 1
      else
         echo -e "$2...$G SUCCESS $N"
-fi  
+    fi  
 }
 
 if [ $USERID -ne 0 ]
 then
      echo "please run this script with root access."
-     exit 1
+     exit 1 #manually exit if error come.
 else  
     echo "you are super user."
 fi
@@ -37,46 +37,16 @@ VALIDATE $? "Enabling nodejs:20 version"
 dnf install nodejs -y &>>$LOGFILE
 VALIDATE $? "Installing nodejs"
 
-id expense  &>>$LOGFILE
+id expense -y &>>$LOGFILE
 if [ $? -ne 0 ]
 then
 
-   useradd expense &>>$LOGFILE
+   useradd expense -y &>>$LOGFILE
    VALIDATE $? "creating expense user"
 else
-  echo "Expense user already created...$Y SKIPPING $N"
+  echo -e "Expense user already created...$Y SKIPPING $N"
 fi
 
-mkdir -p /app &>>$LOGFILE
-VALIDATE $? "creting app directory"
+mkdir /app &>>$LOGFILE
+VALIDATE $? "creting app directory" 
 
-curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOGFILE
-VALIDATE $? " Downloading backend code"
-
-cd /app 
-unzip /tmp/backend.zip &>>$LOGFILE
-VALIDATE $? "Extracted backend code"
-
-npm install &>>$LOGFILE
-VALIDATE $? "Installing nodejs dependencies"
-
-cp /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
-VALIDATE $? "copied backend service"
-
-systemctl daemon-reload &>>$LOGFILE
-VALIDATE $? "Daemon Reload"
-
-systemctl start backend &>>$LOGFILE
-VALIDATE $? "starting backend"
-
-systemctl enable backend &>>$LOGFILE
-VALIDATE $? "Enabling backend"
-
-dnf install mysql -y &>>$LOGFILE
-VALIDATE $? "Installing MYSQL client"
-
-mysql -h db.daws78s.tech -uroot -p${mysql_root_password} /app/schema/backend.sql &>>$LOGFILE 
-VALIDATE $? "schema loading"
-
-systemctl restart backend &>>$LOGFILE
-VALIDATE $? " Restarting Backend"
