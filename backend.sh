@@ -80,6 +80,4 @@ mysql -h db.daws78s.tech -uroot -p${mysql_root_password} < /app/schema/backend.s
 VALIDATE $? "Schema loading"
 
 systemctl restart backend &>>$LOGFILE
-VALIDATE $? "restarting Backend"
-
-
+VALIDADATE $? "Restarting backend"
